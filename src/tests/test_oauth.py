@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 from unittest import TestCase, mock
 
 from requests import Response
 
 from src.casdoor.main import CasdoorSDK
 from src.casdoor.user import User
+import pytest
+
 
 
 class TestOAuth(TestCase):
@@ -34,18 +41,57 @@ class TestOAuth(TestCase):
     # Casdoor user and password for auth with
     # Resource Owner Password Credentials Grant.
     # Grant type "Password" must be enabled in Casdoor Application.
-    username = ""
-    password = ""
+    username = "dongwei"
+    password = "123456"
 
     @staticmethod
     def get_sdk():
+
+    # Casdoor certificate
+        certificate = '''-----BEGIN CERTIFICATE-----
+MIIE2TCCAsGgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMCYxDjAMBgNVBAoTBWFk
+bWluMRQwEgYDVQQDDAtjZXJ0XzVrazFhZTAeFw0yNDA1MjcxMDQ1NDdaFw00NDA1
+MjcxMDQ1NDdaMCYxDjAMBgNVBAoTBWFkbWluMRQwEgYDVQQDDAtjZXJ0XzVrazFh
+ZTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAMOLQ/iMxT8HZqFW+g1/
+aUOIe4Tw0gQnrCyhMAH0HSb65mR7nZANLhChXYK5J1S0I+4ek79wFdF/HqG8c2jv
+/hl1+BafDjFq17k0ZMxENpL/uQLg0COz4bE0KaR6VuTiC1NPQmHeq9lknXi1J+Ac
+Hv6vMklZSU+YmmF+oc8F5CKunBUYslr6nfcA5C61FtZc4XzQnfPsVeSbX5JBnMXW
+Tyyd9PokymkpUoawgR0sHc3QcAGyGdgItBkY7llAWvsatnkcNFXe3xOkhdeSuODf
+CFYDhW1qySbEIOvKpHMHty80Xhg+41iY0zqHygm4X0rx+VNqE8DXRatjEiZuiIO/
+6s++PB9L1ORrbUl4RPgqxcr8RQ8GREdDv2z4pge85wogx1JBg6hgP62kvWnfWi+I
+ir/yFtnNnxkTz2o9EJ4MgZ0RmgWuzN/KTHYFHmR1nbtVWqU4EhwQu2jAA6QfrNsk
+RArpjeRDQEeedR+gMrHG3W0TLwNRe5298S+UoxWhcQT+iB6MScDYvBaDNCdU32gV
+7wBdsVX+2IMCZtaIET8Xk6ShCFa082Jv23ffwQ5g7v5yfqkMbeCn88hqeTzjSsx3
+eqWF3QI6uKtozElFOdrg1YXxN8bJH5MxdbS9ErQGkyNXJ1sQPLEjtChlDdISTAyt
+45oh/IkSIG7p6M2mPzGI0zU1AgMBAAGjEDAOMAwGA1UdEwEB/wQCMAAwDQYJKoZI
+hvcNAQELBQADggIBAJQC9eo3fbpvIDzaFONpBYk+SVfGG0mB1foVwNbm40vd1b/F
+p7ioP1Jvj3q/UX89TGl+y/v7FYE6LKEBflrE7uRQsDTKXExfdxOZBRyEUOEpicLM
+zzML9Udu0DooA9kgsloQyTfTknClu9GHnnkGmjhCJCEg/DczWN93W2itUTGu0mcG
+XQBJ5oPb/VCfWCFIFVt4wATzEpcH9XMl9gKY4sd2dnVYfZgz4hXSJTBaMXq4LHzj
+N3OYxvf14ktB9xYEQzIUt2m+uoFvMFdVG2EkB4MzKjsIV9zqVATmEts7NpSZTnyk
+QP0oXX+/qbyGUKbgPvQINfiAn732ODc5Gk1GTLzH4XIX6DnVKv/ad+UAxHtX/cN5
+fO+NBXKS/IvmK6YRh6lKMYHjDX2KQwhYKgMBCN7zaknxyB/Alq0f1tYvSlAr/9rA
+7Yw+mKPnI1OZrXHHZbD6XYL2LQzUDN0+5+GpggzNElnnoWP2BRdIyfNy/ZYL/rXj
+hxgNNW4QYIGyyUXm03DRF2TVPAIt8Bj1l28ys2pniSGkqVUgMswg8VrTESNwbHCG
+Af244esqv5Oh9zUSZ9AbU2kgCsNTu9Ih/WnRBdStxi3EZMfyG417S6cqqSrbtmDd
+F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
+-----END CERTIFICATE-----'''
+
+        #sdk = CasdoorSDK(
+        #    endpoint="https://demo.casdoor.com",
+        #    client_id="3267f876b11e7d1cb217",
+        #    client_secret="3f0d1f06d28d65309c8f38b505cb9dcfa487754d",
+        #    certificate="CasdoorSecret",
+        #    org_name="built-in",
+        #    application_name="app-built-in",
+        #)
         sdk = CasdoorSDK(
-            endpoint="https://demo.casdoor.com",
-            client_id="3267f876b11e7d1cb217",
-            client_secret="3f0d1f06d28d65309c8f38b505cb9dcfa487754d",
-            certificate="CasdoorSecret",
-            org_name="built-in",
-            application_name="app-built-in",
+            endpoint='http://172.20.31.12:18000',
+            client_id='66913c06cc414d1865c7',
+            client_secret='f0a67b016544895c8f0e3db1b3bfc0a6bc3396d6',
+            certificate=certificate,
+            org_name='datacanvas',
+            application_name='python-ci-1',
         )
         return sdk
 
@@ -92,10 +138,102 @@ class TestOAuth(TestCase):
         result = sdk._get_payload_for_access_token_request(username="test", password="test")
         self.assertEqual("password", result.get("grant_type"))
 
+    #@pytest.mark
     def test_get_oauth_token_with_client_cred(self):
         sdk = self.get_sdk()
         token = sdk.get_oauth_token()
         access_token = token.get("access_token")
+        print(f"access_token:[{access_token}]")
+        decoded_msg = sdk.parse_jwt_token(access_token)
+        print(f"decoded_msg:[{decoded_msg}]")
+        '''
+        {
+            "owner": "admin",
+            "name": "python-ci-1",
+            "createdTime": "",
+            "updatedTime": "",
+            "deletedTime": "",
+            "id": "admin/python-ci-1",
+            "type": "application",
+            "password": "",
+            "passwordSalt": "",
+            "passwordType": "",
+            "displayName": "",
+            "firstName": "",
+            "lastName": "",
+            "avatar": "",
+            "avatarType": "",
+            "permanentAvatar": "",
+            "email": "",
+            "emailVerified": false,
+            "phone": "",
+            "countryCode": "",
+            "region": "",
+            "location": "",
+            "address": [],
+            "affiliation": "",
+            "title": "",
+            "idCardType": "",
+            "idCard": "",
+            "homepage": "",
+            "bio": "",
+            "language": "",
+            "gender": "",
+            "birthday": "",
+            "education": "",
+            "score": 0,
+            "karma": 0,
+            "ranking": 0,
+            "isDefaultAvatar": false,
+            "isOnline": false,
+            "isAdmin": false,
+            "isForbidden": false,
+            "isDeleted": false,
+            "signupApplication": "",
+            "hash": "",
+            "preHash": "",
+            "accessKey": "",
+            "accessSecret": "",
+            "github": "",
+            "google": "",
+            "qq": "",
+            "wechat": "",
+            "facebook": "",
+            "dingtalk": "",
+            "weibo": "",
+            "gitee": "",
+            "linkedin": "",
+            "wecom": "",
+            "lark": "",
+            "gitlab": "",
+            "createdIp": "",
+            "lastSigninTime": "",
+            "lastSigninIp": "",
+            "preferredMfaType": "",
+            "recoveryCodes": "None",
+            "totpSecret": "",
+            "mfaPhoneEnabled": false,
+            "mfaEmailEnabled": false,
+            "ldap": "",
+            "properties": {},
+            "roles": [],
+            "permissions": [],
+            "groups": [],
+            "lastSigninWrongTime": "",
+            "signinWrongTimes": 0,
+            "tokenType": "access-token",
+            "tag": "",
+            "iss": "http://172.20.31.12:18000",
+            "sub": "admin/python-ci-1",
+            "aud": [
+                "66913c06cc414d1865c7"
+            ],
+            "exp": 1717419645,
+            "nbf": 1716814845,
+            "iat": 1716814845,
+            "jti": "admin/8030c2a4-1208-4dc6-9ba2-679653791e79"
+            }
+        '''
         self.assertIsInstance(access_token, str)
 
     def test_get_oauth_token_with_code(self):
@@ -108,6 +246,97 @@ class TestOAuth(TestCase):
         sdk = self.get_sdk()
         token = sdk.get_oauth_token(username=self.username, password=self.password)
         access_token = token.get("access_token")
+        print(f"access_token:[{access_token}]")
+        decoded_msg = sdk.parse_jwt_token(access_token)
+        print(f"decoded_msg:[{decoded_msg}]")
+        '''
+        {
+            "owner": "datacanvas",
+            "name": "dongwei",
+            "createdTime": "2024-05-27T21:02:28+08:00",
+            "updatedTime": "2024-05-27T13:04:09Z",
+            "deletedTime": "",
+            "id": "5b3e7c6e-6024-427e-8450-505e04cf5fe7",
+            "type": "normal-user",
+            "password": "",
+            "passwordSalt": "",
+            "passwordType": "salt",
+            "displayName": "董威",
+            "firstName": "",
+            "lastName": "",
+            "avatar": "https://cdn.casbin.org/img/casbin.svg",
+            "avatarType": "",
+            "permanentAvatar": "",
+            "email": "dongwei@gmail.com",
+            "emailVerified": false,
+            "phone": "14513513328",
+            "countryCode": "US",
+            "region": "",
+            "location": "",
+            "address": [],
+            "affiliation": "Example Inc.",
+            "title": "",
+            "idCardType": "",
+            "idCard": "",
+            "homepage": "",
+            "bio": "",
+            "language": "",
+            "gender": "",
+            "birthday": "",
+            "education": "",
+            "score": 2000,
+            "karma": 0,
+            "ranking": 2,
+            "isDefaultAvatar": false,
+            "isOnline": false,
+            "isAdmin": true,
+            "isForbidden": false,
+            "isDeleted": false,
+            "signupApplication": "python-ci-1",
+            "hash": "",
+            "preHash": "",
+            "accessKey": "",
+            "accessSecret": "",
+            "github": "",
+            "google": "",
+            "qq": "",
+            "wechat": "",
+            "facebook": "",
+            "dingtalk": "",
+            "weibo": "",
+            "gitee": "",
+            "linkedin": "",
+            "wecom": "",
+            "lark": "",
+            "gitlab": "",
+            "createdIp": "",
+            "lastSigninTime": "",
+            "lastSigninIp": "",
+            "preferredMfaType": "",
+            "recoveryCodes": "None",
+            "totpSecret": "",
+            "mfaPhoneEnabled": false,
+            "mfaEmailEnabled": false,
+            "ldap": "",
+            "properties": {},
+            "roles": [],
+            "permissions": [],
+            "groups": [],
+            "lastSigninWrongTime": "",
+            "signinWrongTimes": 0,
+            "tokenType": "access-token",
+            "tag": "staff",
+            "iss": "http://172.20.31.12:18000",
+            "sub": "5b3e7c6e-6024-427e-8450-505e04cf5fe7",
+            "aud": [
+                "66913c06cc414d1865c7"
+            ],
+            "exp": 1717420040,
+            "nbf": 1716815240,
+            "iat": 1716815240,
+            "jti": "admin/ea8c3d1b-8403-43ea-ab4a-08395f39f0ab"
+        }
+        '''
         self.assertIsInstance(access_token, str)
 
     def test_oauth_token_request(self):
