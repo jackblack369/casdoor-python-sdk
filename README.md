@@ -145,3 +145,8 @@ decoded_msg = sdk.parse_jwt_token(access_token) # or sdk.parse_jwt_token(access_
 ```
 
 `decoded_msg` is the JSON data decoded from the `access_token`.
+
+# Test
+```shell
+pytest -s src/tests/test_async_oauth.py::TestOAuth::test_get_oauth_token_with_client_cred
+```

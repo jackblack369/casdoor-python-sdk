@@ -25,30 +25,9 @@ from src.casdoor.main import CasdoorSDK
 from src.casdoor.user import User
 import pytest
 
-
-
-class TestOAuth(TestCase):
-    """
-    You should replace the code content below and
-    the get_sdk() method's content with your own Casdoor
-    instance and such if you need to. And running these tests successfully
-    proves that your connection to Casdoor is good-and-working!
-    """
-
-    # server returned authorization code
-    code = "6d038ac60d4e1f17e742"
-
-    # Casdoor user and password for auth with
-    # Resource Owner Password Credentials Grant.
-    # Grant type "Password" must be enabled in Casdoor Application.
-    username = "dongwei"
-    password = "123456"
-
-    @staticmethod
-    def get_sdk():
-
-    # Casdoor certificate
-        certificate = '''-----BEGIN CERTIFICATE-----
+# global local_certificate
+# local Casdoor certificate
+local_certificate = '''-----BEGIN CERTIFICATE-----
 MIIE2TCCAsGgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMCYxDjAMBgNVBAoTBWFk
 bWluMRQwEgYDVQQDDAtjZXJ0XzVrazFhZTAeFw0yNDA1MjcxMDQ1NDdaFw00NDA1
 MjcxMDQ1NDdaMCYxDjAMBgNVBAoTBWFkbWluMRQwEgYDVQQDDAtjZXJ0XzVrazFh
@@ -77,6 +56,57 @@ Af244esqv5Oh9zUSZ9AbU2kgCsNTu9Ih/WnRBdStxi3EZMfyG417S6cqqSrbtmDd
 F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
 -----END CERTIFICATE-----'''
 
+gcp_certificate = '''-----BEGIN CERTIFICATE-----
+MIIE3TCCAsWgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMCgxDjAMBgNVBAoTBWFk
+bWluMRYwFAYDVQQDEw1jZXJ0LWJ1aWx0LWluMB4XDTIzMTEzMDA3MjIxMloXDTQz
+MTEzMDA3MjIxMlowKDEOMAwGA1UEChMFYWRtaW4xFjAUBgNVBAMTDWNlcnQtYnVp
+bHQtaW4wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC7jkDS2iDTibUx
+DSext6Z2Um2a8kBGLfllqf7few3TDWX5JTLVq1fAzmLipcUuEHIH9AjUbKFmEFSn
+iqigxpgoBQYi1JY72b8pN+kjgMkmXcSAZPotxoRTz3Dv3iz5QzSjjSc0aYyeV4Gy
+rFHljgIqC8ypOpqiPpnR50+R7ARSHxpWQkuuh8Fgtq59sfrwMkaBTMeuY+NxsFAR
+0chM+N3Pg6yAzPaf4cP7D+B/pHq/Xq8ZJvP9Apk/INX/ByDuUss+Bw75ysImVtHR
+KRHkdXSABgOMHH9z1rMc9KpD/fdrQravSa5d901uQuUIb1Cpv4cF1iJIJC1784da
+Tw0qm/wIkOKv9msUNSvrXNVgUo5whyMsbrv4XyUOY2mViQU1NtZRbNC8C9Fly7p/
+GH9Xv456M7ZI3BwW4i/bFiZe4qqou7wjhpamQlmrEIwjBJcMIidl8GzhlLGb4Sus
+jrIelcKcqeSd/nxVPjYNoG9N6he/Xcyu3Jukr/55pTCxo16tyf7L08CDcqOVl+DK
+oj9UHtGUYolm1euRzPW789CTy+vK+mlA3ZL/bp+ACSMUTxmQXR0WOwRY/hvaKg5o
+8mu9rgCdDdT4m7YLhSh+LxgBbg+7tGfV1ZjVnmC/FmHDfO/kUCeJsbxb1L5hARdU
+/jYAym0SnaclEBfwTvrqTDSWXlp8nQIDAQABoxAwDjAMBgNVHRMBAf8EAjAAMA0G
+CSqGSIb3DQEBCwUAA4ICAQBv1t5Shsmw73p75xwlYSjv0D8CoaeppCPQAU3pruko
+0AVIR+4UNB+QoLkHbGIPOgfkc1ELq23bWWsKm3Vbn5mMjn9t0eEjEvPbYWe9pxaO
+eBzdut2iDgFaXzwGs1a+eQ/gYSzIBVqMP5Voa5EYjyyDDfZWpTg6wdzgci/xWb0n
+qNGnc81e3sjV+4jwN2vpf+4OBSeKcaGtmFgiqxA4gK8xO/pGriYX3hVC7pyPAy4+
+0HWcM6ZB5KwjT6rhPxs1EfC7cd6ktT6NeXcbdu1/0tUxkiAQ/Tc5qhXdemhTyjPm
+9kEuzj3TxLlI4ntD80kE7Y8PWBaQgULroQDYUJdOOgW8goliI5oZCOSYB4phR9gn
+gpuzBsv1EK6K8ok9MMCaJeF1zhleJBXFfRAumrHCo5CzV4kGAGTep0T3SgZLjLgz
+x1HYe7Z4cTXFHIUVMvdanIWJWxJCWM6RAr3bhHi/Rk4Se1soCIg9PuFGSNGcQycv
+fxhl82XTnLQAEuNJ8o3VZrpMFNRaKFUyjSGZVjstDg7j56k/NbhR2TCWVFvD0i7V
+kj3JagdMMs9ylnK1wIvF+Jy6PgqEQA5OEDNCEbdMBEUL9ZNANGXmUgD8K98ebNjV
+kDP3EJQX/5qVk0lxp/kzxHF6jwTpshJB55Xtivj7ow4V7+dmorAuRM9tPrG+LW8B
+Cg==
+-----END CERTIFICATE-----'''
+
+
+class TestOAuth(TestCase):
+    """
+    You should replace the code content below and
+    the get_sdk() method's content with your own Casdoor
+    instance and such if you need to. And running these tests successfully
+    proves that your connection to Casdoor is good-and-working!
+    """
+
+    # server returned authorization code
+    code = "6d038ac60d4e1f17e742"
+
+    # Casdoor user and password for auth with
+    # Resource Owner Password Credentials Grant.
+    # Grant type "Password" must be enabled in Casdoor Application.
+    username = "dongwei"
+    password = "123456"
+
+    @staticmethod
+    def get_local_sdk():
+
         #sdk = CasdoorSDK(
         #    endpoint="https://demo.casdoor.com",
         #    client_id="3267f876b11e7d1cb217",
@@ -89,14 +119,27 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
             endpoint='http://172.20.31.12:18000',
             client_id='66913c06cc414d1865c7',
             client_secret='f0a67b016544895c8f0e3db1b3bfc0a6bc3396d6',
-            certificate=certificate,
+            certificate=local_certificate,
             org_name='datacanvas',
             application_name='python-ci-1',
         )
         return sdk
+    
+    @staticmethod
+    def get_gcp_sdk():
+
+        sdk = CasdoorSDK(
+            endpoint='http://10.220.9.10:8000',
+            client_id='f0bbff667e4643be69cb',
+            client_secret='8854e76bf7e72dca269491517eeaedd032791175',
+            certificate=gcp_certificate,
+            org_name='GCP',
+            application_name='Jarvex',
+        )
+        return sdk
 
     def test__oauth_token_request(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         data = {
             "grant_type": sdk.grant_type,
             "client_id": sdk.client_id,
@@ -107,41 +150,41 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
         self.assertIsInstance(response, dict)
 
     def test__get_payload_for_authorization_code(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._CasdoorSDK__get_payload_for_authorization_code(code=self.code)  # noqa: It's private method
         self.assertEqual("authorization_code", result.get("grant_type"))
 
     def test__get_payload_for_client_credentials(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._CasdoorSDK__get_payload_for_client_credentials()  # noqa: It's private method
         self.assertEqual("client_credentials", result.get("grant_type"))
 
     def test__get_payload_for_password_credentials(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._CasdoorSDK__get_payload_for_password_credentials(  # noqa: It's private method
             username="test", password="test"
         )
         self.assertEqual("password", result.get("grant_type"))
 
     def test__get_payload_for_access_token_request_with_code(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._get_payload_for_access_token_request(code="test")
         self.assertEqual("authorization_code", result.get("grant_type"))
 
     def test__get_payload_for_access_token_request_with_client_cred(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._get_payload_for_access_token_request()
         self.assertEqual("client_credentials", result.get("grant_type"))
 
     def test__get_payload_for_access_token_request_with_cred(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         result = sdk._get_payload_for_access_token_request(username="test", password="test")
         self.assertEqual("password", result.get("grant_type"))
 
     #@pytest.mark
     def test_get_oauth_token_with_client_cred(self):
-        sdk = self.get_sdk()
-        token = sdk.get_oauth_token()
+        sdk = self.get_gcp_sdk()
+        token = sdk.get_oauth_token(code='0bb74f3f2ae4affc6dc5')
         access_token = token.get("access_token")
         print(f"access_token:[{access_token}]")
         decoded_msg = sdk.parse_jwt_token(access_token)
@@ -237,13 +280,13 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
         self.assertIsInstance(access_token, str)
 
     def test_get_oauth_token_with_code(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         token = sdk.get_oauth_token(code=self.code)
         access_token = token.get("access_token")
         self.assertIsInstance(access_token, str)
 
     def test_get_oauth_token_with_password(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         token = sdk.get_oauth_token(username=self.username, password=self.password)
         access_token = token.get("access_token")
         print(f"access_token:[{access_token}]")
@@ -340,33 +383,33 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
         self.assertIsInstance(access_token, str)
 
     def test_oauth_token_request(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         response = sdk.oauth_token_request(self.code)
         self.assertIsInstance(response, Response)
 
     def test_refresh_token_request(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         response = sdk.oauth_token_request(self.code)
         refresh_token = response.json().get("refresh_token")
         response = sdk.refresh_token_request(refresh_token)
         self.assertIsInstance(response, Response)
 
     def test_get_oauth_refreshed_token(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         response = sdk.oauth_token_request(self.code)
         refresh_token = response.json().get("refresh_token")
         response = sdk.refresh_oauth_token(refresh_token)
         self.assertIsInstance(response, str)
 
     def test_parse_jwt_token(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         token = sdk.get_oauth_token(self.code)
         access_token = token.get("access_token")
         decoded_msg = sdk.parse_jwt_token(access_token)
         self.assertIsInstance(decoded_msg, dict)
 
     def test_enforce(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         status = sdk.enforce("built-in/permission-built-in", "admin", "a", "ac")
         self.assertIsInstance(status, bool)
 
@@ -391,7 +434,7 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
 
     @mock.patch("requests.post", side_effect=mocked_enforce_requests_post)
     def test_enforce_parmas(self, mock_post):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         status = sdk.enforce("built-in/permission-built-in", "v0", "v1", "v2", v3="v3", v4="v4", v5="v5")
         self.assertEqual(status, True)
 
@@ -418,7 +461,7 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
 
     @mock.patch("requests.post", side_effect=mocked_batch_enforce_requests_post)
     def test_batch_enforce(self, mock_post):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         status = sdk.batch_enforce(
             "built-in/permission-built-in", [["v0", "v1", "v2", "v3", "v4", "v5"], ["v0", "v1", "v2", "v3", "v4", "v1"]]
         )
@@ -428,18 +471,18 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
 
     @mock.patch("requests.post", side_effect=mocked_batch_enforce_requests_post)
     def test_batch_enforce_raise(self, mock_post):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         with self.assertRaises(ValueError) as context:
             sdk.batch_enforce("built-in/permission-built-in", [["v0", "v1"]])
         self.assertEqual("Invalid permission rule[0]: ['v0', 'v1']", str(context.exception))
 
     def test_get_users(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         users = sdk.get_users()
         self.assertIsInstance(users, list)
 
     def test_get_user_count(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         online_count = sdk.get_user_count(is_online=True)
         offline_count = sdk.get_user_count(is_online=False)
         all_count = sdk.get_user_count()
@@ -449,12 +492,12 @@ F4QnHR0rJdbUIWCXYtIQbcm5P7xrmlW9U3NGJG1kvyzR6BY95Jr44BFL/G80
         self.assertEqual(online_count + offline_count, all_count)
 
     def test_get_user(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         user = sdk.get_user("admin")
         self.assertIsInstance(user, dict)
 
     def test_modify_user(self):
-        sdk = self.get_sdk()
+        sdk = self.get_local_sdk()
         user = User()
         user.name = "test_ffyuanda"
         sdk.delete_user(user)
